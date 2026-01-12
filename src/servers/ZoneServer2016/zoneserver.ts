@@ -4097,14 +4097,15 @@ export class ZoneServer2016 extends EventEmitter {
   addLightweightNpc(
     client: Client,
     entity: BaseLightweightCharacter,
-    nameId = 0
+    nameId = 0,
+    droppedInsideFoundation: boolean = false
   ) {
     this.sendData<AddLightweightNpc>(client, "AddLightweightNpc", {
       ...entity.pGetLightweight(),
       nameId
     });
     if (!(entity instanceof ItemObject) || !entity.isWorldItem) return;
-    if(client.character.allowPickup == false) 
+    if(droppedInsideFoundation)
     {
       entity.isWorldItem = false;
       return;
@@ -6741,7 +6742,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.executeFuncForAllReadyClientsInRange((c) => {
       c.spawnedEntities.add(obj);
-      this.addLightweightNpc(c, obj);
+      this.addLightweightNpc(c, obj, 0, !client.character.allowPickup);
       this.sendData<ClientUpdateProximateItems>(
         c,
         "ClientUpdate.ProximateItems",
