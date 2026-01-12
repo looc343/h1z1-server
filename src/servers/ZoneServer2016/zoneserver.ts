@@ -1300,6 +1300,17 @@ export class ZoneServer2016 extends EventEmitter {
 
     for (const object of client.spawnedEntities) {
       if (object instanceof ItemObject) {
+        if (object.isHidden) {
+          const construction =
+            this._constructionFoundations[object.isHidden] ??
+            this._constructionSimple[object.isHidden];
+          if (
+            construction?.isSecured &&
+            object.isHidden !== client.character.isHidden
+          ) {
+            continue;
+          }
+        } else if (client.character.isHidden != "") continue;
         if (
           isPosInRadiusWithY(
             this.proximityItemsDistance,
@@ -6710,8 +6721,20 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.state.position,
       new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
     );
-
     if (!obj) return;
+
+    for (const f in this._constructionFoundations) {
+      const foundation = this._constructionFoundations[f];
+      if (foundation.isInside(obj.state.position)) {
+        obj.isHidden = foundation.characterId;
+        for (const c in foundation.occupiedShelterSlots) {
+          const construction = foundation.occupiedShelterSlots[c];
+          if (construction.isInside(obj.state.position)) {
+            obj.isHidden = construction.characterId;
+          }
+        }
+      }
+    }
     this.executeFuncForAllReadyClientsInRange((c) => {
       c.spawnedEntities.add(obj);
       this.addLightweightNpc(c, obj);
