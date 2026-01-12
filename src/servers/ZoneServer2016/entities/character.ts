@@ -112,6 +112,8 @@ export class Character2016 extends BaseFullCharacter {
   /** The location the player spawned at */
   spawnLocation?: string;
 
+  allowPickup: boolean = true;
+
   /** Used to update the status of the players resources */
   resourcesUpdater?: any;
   factionId = 2;

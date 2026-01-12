@@ -2418,9 +2418,11 @@ export class ConstructionManager {
     client: Client
   ) {
     let hide = false;
+    let allowPickup = true;
 
     for (const object of client.spawnedEntities) {
       if (object instanceof ConstructionParentEntity) {
+        if (object.isInside(client.character.state.position) && object.itemDefinitionId != Items.SHACK ) allowPickup = false;
         if (this.checkFoundationPermission(server, client, object)) {
           hide = true;
           continue;
@@ -2436,6 +2438,7 @@ export class ConstructionManager {
         }
       }
     }
+    client.character.allowPickup = allowPickup;
 
     if (!hide && client.character.isHidden) {
       client.character.isHidden = "";

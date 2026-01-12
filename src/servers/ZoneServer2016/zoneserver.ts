@@ -1297,9 +1297,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   getProximityItems(client: Client): ClientUpdateProximateItems {
     const proximityItems: ClientUpdateProximateItems = { items: [] };
-
     for (const object of client.spawnedEntities) {
-      if (object instanceof ItemObject) {
+      if (object instanceof ItemObject) { 
+        if(client.character.allowPickup != object.isWorldItem) continue;
         if (object.isHidden) {
           const construction =
             this._constructionFoundations[object.isHidden] ??
@@ -1310,7 +1310,7 @@ export class ZoneServer2016 extends EventEmitter {
           ) {
             continue;
           }
-        } else if (client.character.isHidden != "") continue;
+        } else if (client.character.isHidden != "") continue;         
         if (
           isPosInRadiusWithY(
             this.proximityItemsDistance,
@@ -4104,6 +4104,11 @@ export class ZoneServer2016 extends EventEmitter {
       nameId
     });
     if (!(entity instanceof ItemObject) || !entity.isWorldItem) return;
+    if(client.character.allowPickup == false) 
+    {
+      entity.isWorldItem = false;
+      return;
+    }
     this.sendData<ReplicationCreateComponent>(
       client,
       "Replication.CreateComponent",
@@ -6722,7 +6727,6 @@ export class ZoneServer2016 extends EventEmitter {
       new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
     );
     if (!obj) return;
-
     for (const f in this._constructionFoundations) {
       const foundation = this._constructionFoundations[f];
       if (foundation.isInside(obj.state.position)) {
